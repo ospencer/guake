@@ -1,5 +1,5 @@
-import gconf
-import gtk
+from gi.repository import GConf
+from gi.repository import Gtk
 import mock
 import pytest
 
@@ -10,13 +10,13 @@ from guake.prefs import PrefsDialog
 @pytest.fixture
 def prefs():
     obj = mock.Mock(PrefsDialog)
-    obj.client = mock.Mock(gconf.Client)
+    obj.client = mock.Mock(GConf.Client)
     return obj
 
 
 @pytest.fixture
 def widget():
-    obj = mock.Mock(gtk.Widget)
+    obj = mock.Mock(Gtk.Widget)
     obj.set_active = mock.Mock()
     obj.set_text = mock.Mock()
     return obj

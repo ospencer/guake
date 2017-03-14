@@ -3,12 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 
-import gconf
-import gtk
+from gi.repository import GConf
+from gi.repository import Gtk
 import logging
 import subprocess
 
-from pango import FontDescription
+from gi.repository.Pango import FontDescription
 from xml.sax.saxutils import escape as xml_escape
 
 import guake.notifier
@@ -31,18 +31,18 @@ log = logging.getLogger(__name__)
 
 class GConfHandler(object):
 
-    """Handles gconf changes, if any gconf variable is changed, a
+    """Handles GConf changes, if any GConf variable is changed, a
     different method is called to handle this change.
     """
 
     def __init__(self, guake):
         """Constructor of GConfHandler, just add the guake dir to the
-        gconf client and bind the keys to its handler methods.
+        GConf client and bind the keys to its handler methods.
         """
         self.guake = guake
 
-        client = gconf.client_get_default()
-        client.add_dir(GCONF_PATH, gconf.CLIENT_PRELOAD_RECURSIVE)
+        client = GConf.client_get_default()
+        client.add_dir(GCONF_PATH, GConf.CLIENT_PRELOAD_RECURSIVE)
 
         notify_add = client.notify_add
 
@@ -57,7 +57,7 @@ class GConfHandler(object):
         #   self.on_quick_open_in_current_terminal_changed)
 
         # Notification is not required for mouse_display/display_n because
-        # set_final_window_rect polls gconf and is called whenever Guake is
+        # set_final_window_rect polls GConf and is called whenever Guake is
         # shown or resized
 
         notify_add(KEY('/general/show_resizer'), self.show_resizer_toggled)
@@ -103,7 +103,7 @@ class GConfHandler(object):
         self.guake.load_custom_commands()
 
     def show_resizer_toggled(self, client, connection_id, entry, data):
-        """If the gconf var show_resizer be changed, this method will
+        """If the GConf var show_resizer be changed, this method will
         be called and will show/hide the resizer.
         """
         if entry.value.get_bool():
@@ -112,7 +112,7 @@ class GConfHandler(object):
             self.guake.resizer.hide()
 
     def trayicon_toggled(self, client, connection_id, entry, data):
-        """If the gconf var use_trayicon be changed, this method will
+        """If the GConf var use_trayicon be changed, this method will
         be called and will show/hide the trayicon.
         """
         if hasattr(self.guake.tray_icon, 'set_status'):
@@ -121,7 +121,7 @@ class GConfHandler(object):
             self.guake.tray_icon.set_visible(entry.value.get_bool())
 
     def ontop_toggled(self, client, connection_id, entry, data):
-        """If the gconf var window_ontop be changed, this method will
+        """If the GConf var window_ontop be changed, this method will
         be called and will set the keep_above attribute in guake's
         main window.
         """
@@ -133,7 +133,7 @@ class GConfHandler(object):
         self.guake.set_tab_position()
 
     def tabbar_toggled(self, client, connection_id, entry, data):
-        """If the gconf var use_tabbar be changed, this method will be
+        """If the GConf var use_tabbar be changed, this method will be
         called and will show/hide the tabbar.
         """
         if entry.value.get_bool():
@@ -142,7 +142,7 @@ class GConfHandler(object):
             self.guake.toolbar.hide()
 
     def alignment_changed(self, client, connection_id, entry, data):
-        """If the gconf var window_halignment be changed, this method will
+        """If the GConf var window_halignment be changed, this method will
         be called and will call the move function in guake.
         """
         self.guake.set_final_window_rect()
@@ -150,7 +150,7 @@ class GConfHandler(object):
         self.guake.force_move_if_shown()
 
     def size_changed(self, client, connection_id, entry, data):
-        """If the gconf var window_height or window_width are changed,
+        """If the GConf var window_height or window_width are changed,
         this method will be called and will call the resize function
         in guake.
         """
@@ -169,7 +169,7 @@ class GConfHandler(object):
             term.set_property("cursor-shape", entry.value.get_int())
 
     def scrollbar_toggled(self, client, connection_id, entry, data):
-        """If the gconf var use_scrollbar be changed, this method will
+        """If the GConf var use_scrollbar be changed, this method will
         be called and will show/hide scrollbars of all terminals open.
         """
         for term in self.guake.notebook.iter_terminals():
@@ -185,7 +185,7 @@ class GConfHandler(object):
                 scrollbar.hide()
 
     def history_size_changed(self, client, connection_id, entry, data):
-        """If the gconf var history_size be changed, this method will
+        """If the GConf var history_size be changed, this method will
         be called and will set the scrollback_lines property of all
         terminals open.
         """
@@ -193,7 +193,7 @@ class GConfHandler(object):
             i.set_scrollback_lines(entry.value.get_int())
 
     def keystroke_output(self, client, connection_id, entry, data):
-        """If the gconf var scroll_output be changed, this method will
+        """If the GConf var scroll_output be changed, this method will
         be called and will set the scroll_on_output in all terminals
         open.
         """
@@ -201,7 +201,7 @@ class GConfHandler(object):
             i.set_scroll_on_output(entry.value.get_bool())
 
     def keystroke_toggled(self, client, connection_id, entry, data):
-        """If the gconf var scroll_keystroke be changed, this method
+        """If the GConf var scroll_keystroke be changed, this method
         will be called and will set the scroll_on_keystroke in all
         terminals open.
         """
@@ -209,7 +209,7 @@ class GConfHandler(object):
             i.set_scroll_on_keystroke(entry.value.get_bool())
 
     def default_font_toggled(self, client, connection_id, entry, data):
-        """If the gconf var use_default_font be changed, this method
+        """If the GConf var use_default_font be changed, this method
         will be called and will change the font style to the gnome
         default or to the chosen font in style/font/style in all
         terminals open.
@@ -223,7 +223,7 @@ class GConfHandler(object):
                                      DCONF_MONOSPACE_FONT_KEY], stdout=subprocess.PIPE)
             font_name = proc.stdout.readline().replace("'", "")
             if font_name is None:
-                # Back to gconf
+                # Back to GConf
                 font_name = client.get_string(GCONF_MONOSPACE_FONT_PATH)
             proc.kill()
         else:
@@ -240,7 +240,7 @@ class GConfHandler(object):
             i.set_font(font)
 
     def allow_bold_toggled(self, client, connection_id, entry, data):
-        """If the gconf var allow_bold is changed, this method will be called
+        """If the GConf var allow_bold is changed, this method will be called
         and will change the VTE terminal o.
         displaying characters in bold font.
         """
@@ -248,14 +248,14 @@ class GConfHandler(object):
             term.set_allow_bold(entry.value.get_bool())
 
     def palette_font_and_background_color_toggled(self, client, connection_id, entry, data):
-        """If the gconf var use_palette_font_and_background_color be changed, this method
+        """If the GConf var use_palette_font_and_background_color be changed, this method
         will be called and will change the font color and the background color to the color
         defined in the palette.
         """
         pass
 
     def fstyle_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/font/style be changed, this method
+        """If the GConf var style/font/style be changed, this method
         will be called and will change the font style in all terminals
         open.
         """
@@ -264,11 +264,11 @@ class GConfHandler(object):
             i.set_font(font)
 
     def fcolor_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/font/color be changed, this method
+        """If the GConf var style/font/color be changed, this method
         will be called and will change the font color in all terminals
         open.
         """
-        fgcolor = gtk.gdk.color_parse(entry.value.get_string())
+        fgcolor = Gtk.gdk.color_parse(entry.value.get_string())
         use_palette_font_and_background_color = client.get_bool(
             KEY('/general/use_palette_font_and_background_color'))
         if use_palette_font_and_background_color:
@@ -279,15 +279,15 @@ class GConfHandler(object):
             i.set_color_bold(i.custom_fgcolor or fgcolor)
 
     def fpalette_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/font/palette be changed, this method
+        """If the GConf var style/font/palette be changed, this method
         will be called and will change the color scheme in all terminals
         open.
         """
-        fgcolor = gtk.gdk.color_parse(
+        fgcolor = Gtk.gdk.color_parse(
             client.get_string(KEY('/style/font/color')))
-        bgcolor = gtk.gdk.color_parse(
+        bgcolor = Gtk.gdk.color_parse(
             client.get_string(KEY('/style/background/color')))
-        palette = [gtk.gdk.color_parse(color) for color in
+        palette = [Gtk.gdk.color_parse(color) for color in
                    entry.value.get_string().split(':')]
 
         use_palette_font_and_background_color = client.get_bool(
@@ -305,7 +305,7 @@ class GConfHandler(object):
             i.set_colors(fgcolor, bgcolor, palette[:16])
 
     def bgcolor_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/background/color be changed, this
+        """If the GConf var style/background/color be changed, this
         method will be called and will change the background color in
         all terminals open.
         """
@@ -314,13 +314,13 @@ class GConfHandler(object):
         if use_palette_font_and_background_color:
             log.debug("do not set background from user")
             return
-        bgcolor = gtk.gdk.color_parse(entry.value.get_string())
+        bgcolor = Gtk.gdk.color_parse(entry.value.get_string())
         for i in self.guake.notebook.iter_terminals():
             i.set_color_background(i.custom_bgcolor or bgcolor)
             i.set_background_tint_color(i.custom_bgcolor or bgcolor)
 
     def bgimage_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/background/image be changed, this
+        """If the GConf var style/background/image be changed, this
         method will be called and will change the background image and
         will set the transparent flag to false if an image is set in
         all terminals open.
@@ -328,14 +328,14 @@ class GConfHandler(object):
         self.guake.set_background_image(entry.value.get_string())
 
     def bgtransparency_changed(self, client, connection_id, entry, data):
-        """If the gconf var style/background/transparency be changed, this
+        """If the GConf var style/background/transparency be changed, this
         method will be called and will set the saturation and transparency
         properties in all terminals open.
         """
         self.guake.set_background_transparency(entry.value.get_int())
 
     def backspace_changed(self, client, connection_id, entry, data):
-        """If the gconf var compat_backspace be changed, this method
+        """If the GConf var compat_backspace be changed, this method
         will be called and will change the binding configuration in
         all terminals open.
         """
@@ -343,7 +343,7 @@ class GConfHandler(object):
             i.set_backspace_binding(entry.value.get_string())
 
     def delete_changed(self, client, connection_id, entry, data):
-        """If the gconf var compat_delete be changed, this method
+        """If the GConf var compat_delete be changed, this method
         will be called and will change the binding configuration in
         all terminals open.
         """
@@ -351,7 +351,7 @@ class GConfHandler(object):
             i.set_delete_binding(entry.value.get_string())
 
     def max_tab_name_length_changed(self, client, connection_id, entry, data):
-        """If the gconf var max_tab_name_length be changed, this method will
+        """If the GConf var max_tab_name_length be changed, this method will
         be called and will set the tab name length limit.
         """
 
@@ -362,7 +362,7 @@ class GConfHandler(object):
         self.guake.recompute_tabs_titles()
 
     def abbreviate_tab_names_changed(self, client, connection_id, entry, data):
-        """If the gconf var abbreviate_tab_names be changed, this method will
+        """If the GConf var abbreviate_tab_names be changed, this method will
         be called and will update tab names.
         """
         abbreviate_tab_names = client.get_bool(KEY('/general/abbreviate_tab_names'))
@@ -381,7 +381,7 @@ class GConfKeyHandler(object):
         """
         self.guake = guake
         self.accel_group = None  # see reload_accelerators
-        self.client = gconf.client_get_default()
+        self.client = GConf.client_get_default()
 
         notify_add = self.client.notify_add
 
@@ -408,7 +408,7 @@ class GConfKeyHandler(object):
     def reload_global(self, client, connection_id, entry, data):
         """Unbind all global hotkeys and rebind the show_hide
         method. If more global hotkeys should be added, just connect
-        the gconf key to the watch system and add.
+        the GConf key to the watch system and add.
         """
         gkey = entry.get_key()
         key = entry.get_value().get_string()
@@ -422,8 +422,8 @@ class GConfKeyHandler(object):
             pass
         self.globalhotkeys[gkey] = key
         if not self.guake.hotkeys.bind(key, self.guake.show_hide):
-            keyval, mask = gtk.accelerator_parse(key)
-            label = gtk.accelerator_get_label(keyval, mask)
+            keyval, mask = Gtk.accelerator_parse(key)
+            label = Gtk.accelerator_get_label(keyval, mask)
             filename = pixmapfile('guake-notification.png')
             guake.notifier.show_message(
                 _('Guake Terminal'),
@@ -437,137 +437,137 @@ class GConfKeyHandler(object):
         """
         if self.accel_group:
             self.guake.window.remove_accel_group(self.accel_group)
-        self.accel_group = gtk.AccelGroup()
+        self.accel_group = Gtk.AccelGroup()
         self.guake.window.add_accel_group(self.accel_group)
         self.guake.context_menu.set_accel_group(self.accel_group)
         self.load_accelerators()
 
     def load_accelerators(self):
-        """Reads all gconf paths under /apps/guake/keybindings/local
+        """Reads all GConf paths under /apps/guake/keybindings/local
         and adds to the main accel_group.
         """
         gets = lambda x: self.client.get_string(LKEY(x))
-        key, mask = gtk.accelerator_parse(gets('reset_terminal'))
+        key, mask = Gtk.accelerator_parse(gets('reset_terminal'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_reset_terminal)
 
-        key, mask = gtk.accelerator_parse(gets('quit'))
+        key, mask = Gtk.accelerator_parse(gets('quit'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_quit)
 
-        key, mask = gtk.accelerator_parse(gets('new_tab'))
+        key, mask = Gtk.accelerator_parse(gets('new_tab'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_add)
 
-        key, mask = gtk.accelerator_parse(gets('close_tab'))
+        key, mask = Gtk.accelerator_parse(gets('close_tab'))
         if key > 0:
             self.accel_group.connect_group(
-                key, mask, gtk.ACCEL_VISIBLE,
+                key, mask, Gtk.ACCEL_VISIBLE,
                 self.guake.close_tab)
 
-        key, mask = gtk.accelerator_parse(gets('previous_tab'))
+        key, mask = Gtk.accelerator_parse(gets('previous_tab'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_prev)
 
-        key, mask = gtk.accelerator_parse(gets('next_tab'))
+        key, mask = Gtk.accelerator_parse(gets('next_tab'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_next)
 
-        key, mask = gtk.accelerator_parse(gets('move_tab_left'))
+        key, mask = Gtk.accelerator_parse(gets('move_tab_left'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_move_tab_left)
 
-        key, mask = gtk.accelerator_parse(gets('move_tab_right'))
+        key, mask = Gtk.accelerator_parse(gets('move_tab_right'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_move_tab_right)
 
-        key, mask = gtk.accelerator_parse(gets('rename_current_tab'))
+        key, mask = Gtk.accelerator_parse(gets('rename_current_tab'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_rename_current_tab)
 
-        key, mask = gtk.accelerator_parse(gets('clipboard_copy'))
+        key, mask = Gtk.accelerator_parse(gets('clipboard_copy'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_copy_clipboard)
 
-        key, mask = gtk.accelerator_parse(gets('clipboard_paste'))
+        key, mask = Gtk.accelerator_parse(gets('clipboard_paste'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_paste_clipboard)
 
-        key, mask = gtk.accelerator_parse(gets('toggle_fullscreen'))
+        key, mask = Gtk.accelerator_parse(gets('toggle_fullscreen'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_toggle_fullscreen)
 
-        key, mask = gtk.accelerator_parse(gets('toggle_hide_on_lose_focus'))
+        key, mask = Gtk.accelerator_parse(gets('toggle_hide_on_lose_focus'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_toggle_hide_on_lose_focus)
 
-        key, mask = gtk.accelerator_parse(gets('zoom_in'))
+        key, mask = Gtk.accelerator_parse(gets('zoom_in'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_zoom_in)
 
-        key, mask = gtk.accelerator_parse(gets('zoom_in_alt'))
+        key, mask = Gtk.accelerator_parse(gets('zoom_in_alt'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_zoom_in)
 
-        key, mask = gtk.accelerator_parse(gets('zoom_out'))
+        key, mask = Gtk.accelerator_parse(gets('zoom_out'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_zoom_out)
 
-        key, mask = gtk.accelerator_parse(gets('increase_height'))
+        key, mask = Gtk.accelerator_parse(gets('increase_height'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_increase_height)
 
-        key, mask = gtk.accelerator_parse(gets('decrease_height'))
+        key, mask = Gtk.accelerator_parse(gets('decrease_height'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_decrease_height)
 
-        key, mask = gtk.accelerator_parse(gets('increase_transparency'))
+        key, mask = Gtk.accelerator_parse(gets('increase_transparency'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_increase_transparency)
 
-        key, mask = gtk.accelerator_parse(gets('decrease_transparency'))
+        key, mask = Gtk.accelerator_parse(gets('decrease_transparency'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_decrease_transparency)
 
-        key, mask = gtk.accelerator_parse(gets('toggle_transparency'))
+        key, mask = Gtk.accelerator_parse(gets('toggle_transparency'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_toggle_transparency)
 
         for tab in xrange(1, 11):
-            key, mask = gtk.accelerator_parse(gets('switch_tab%d' % tab))
+            key, mask = Gtk.accelerator_parse(gets('switch_tab%d' % tab))
             if key > 0:
-                self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+                self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                                self.guake.gen_accel_switch_tabN(tab - 1))
 
-        key, mask = gtk.accelerator_parse(gets('switch_tab_last'))
+        key, mask = Gtk.accelerator_parse(gets('switch_tab_last'))
         if key > 0:
-            self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+            self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                            self.guake.accel_switch_tab_last)
 
         try:
-            key, mask = gtk.accelerator_parse(gets('search_on_web'))
+            key, mask = Gtk.accelerator_parse(gets('search_on_web'))
             if key > 0:
-                self.accel_group.connect_group(key, mask, gtk.ACCEL_VISIBLE,
+                self.accel_group.connect_group(key, mask, Gtk.ACCEL_VISIBLE,
                                                self.guake.search_on_web)
         except Exception:
             log.exception("Exception occured")

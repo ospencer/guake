@@ -21,15 +21,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import gconf
-import gobject
-import gtk
+from gi.repository import GConf
+from gi.repository import GObject
+from gi.repository import Gtk
 import logging
 import os
 import re
 import warnings
 
-from pango import FontDescription
+from gi.repository.Pango import FontDescription
 
 from guake.common import ShowableError
 from guake.common import _
@@ -167,13 +167,13 @@ class PrefsCallbacks(object):
     """
 
     def __init__(self, prefDlg):
-        self.client = gconf.client_get_default()
+        self.client = GConf.client_get_default()
         self.prefDlg = prefDlg
 
     # general tab
 
     def on_default_shell_changed(self, combo):
-        """Changes the activity of default_shell in gconf
+        """Changes the activity of default_shell in GConf
         """
         citer = combo.get_active_iter()
         if not citer:
@@ -187,47 +187,47 @@ class PrefsCallbacks(object):
             self.client.set_string(KEY('/general/default_shell'), shell)
 
     def on_use_login_shell_toggled(self, chk):
-        """Changes the activity of use_login_shell in gconf
+        """Changes the activity of use_login_shell in GConf
         """
         self.client.set_bool(KEY('/general/use_login_shell'), chk.get_active())
 
     def on_open_tab_cwd_toggled(self, chk):
-        """Changes the activity of open_tab_cwd in gconf
+        """Changes the activity of open_tab_cwd in GConf
         """
         self.client.set_bool(KEY('/general/open_tab_cwd'), chk.get_active())
 
     def on_use_trayicon_toggled(self, chk):
-        """Changes the activity of use_trayicon in gconf
+        """Changes the activity of use_trayicon in GConf
         """
         self.client.set_bool(KEY('/general/use_trayicon'), chk.get_active())
 
     def on_use_popup_toggled(self, chk):
-        """Changes the activity of use_popup in gconf
+        """Changes the activity of use_popup in GConf
         """
         self.client.set_bool(KEY('/general/use_popup'), chk.get_active())
 
     def on_prompt_on_quit_toggled(self, chk):
-        """Set the `prompt on quit' property in gconf
+        """Set the `prompt on quit' property in GConf
         """
         self.client.set_bool(KEY('/general/prompt_on_quit'), chk.get_active())
 
     def on_prompt_on_close_tab_changed(self, combo):
-        """Set the `prompt_on_close_tab' property in gconf
+        """Set the `prompt_on_close_tab' property in GConf
         """
         self.client.set_int(KEY('/general/prompt_on_close_tab'), combo.get_active())
 
     def on_window_ontop_toggled(self, chk):
-        """Changes the activity of window_ontop in gconf
+        """Changes the activity of window_ontop in GConf
         """
         self.client.set_bool(KEY('/general/window_ontop'), chk.get_active())
 
     def on_tab_ontop_toggled(self, chk):
-        """Changes the activity of tab_ontop in gconf
+        """Changes the activity of tab_ontop in GConf
         """
         self.client.set_bool(KEY('/general/tab_ontop'), chk.get_active())
 
     def on_quick_open_enable_toggled(self, chk):
-        """Changes the activity of quick_open_enable in gconf
+        """Changes the activity of quick_open_enable in GConf
         """
         self.client.set_bool(KEY('/general/quick_open_enable'), chk.get_active())
 
@@ -238,7 +238,7 @@ class PrefsCallbacks(object):
         self.client.set_string(KEY('/general/startup_script'), edt.get_text())
 
     def on_window_losefocus_toggled(self, chk):
-        """Changes the activity of window_losefocus in gconf
+        """Changes the activity of window_losefocus in GConf
         """
         self.client.set_bool(KEY('/general/window_losefocus'), chk.get_active())
 
@@ -249,34 +249,34 @@ class PrefsCallbacks(object):
         self.client.set_string(KEY('/hooks/show'), edt.get_text())
 
     def on_window_tabbar_toggled(self, chk):
-        """Changes the activity of window_tabbar in gconf
+        """Changes the activity of window_tabbar in GConf
         """
         self.client.set_bool(KEY('/general/window_tabbar'), chk.get_active())
 
     def on_start_fullscreen_toggled(self, chk):
-        """Changes the activity of start_fullscreen in gconf
+        """Changes the activity of start_fullscreen in GConf
         """
         self.client.set_bool(KEY('/general/start_fullscreen'), chk.get_active())
 
     def on_use_vte_titles_toggled(self, chk):
-        """Save `use_vte_titles` property value in gconf
+        """Save `use_vte_titles` property value in GConf
         """
         self.client.set_bool(KEY('/general/use_vte_titles'), chk.get_active())
 
     def on_abbreviate_tab_names_toggled(self, chk):
-        """Save `abbreviate_tab_names` property value in gconf
+        """Save `abbreviate_tab_names` property value in GConf
         """
         self.client.set_bool(KEY('/general/abbreviate_tab_names'), chk.get_active())
 
     def on_max_tab_name_length_changed(self, spin):
-        """Changes the value of max_tab_name_length in gconf
+        """Changes the value of max_tab_name_length in GConf
         """
         val = int(spin.get_value())
         self.client.set_int(KEY('/general/max_tab_name_length'), val)
         self.prefDlg.update_vte_subwidgets_states()
 
     def on_mouse_display_toggled(self, chk):
-        """Set the 'appear on mouse display' preference in gconf. This
+        """Set the 'appear on mouse display' preference in GConf. This
         property supercedes any value stored in display_n.
         """
         self.client.set_bool(KEY('/general/mouse_display'), chk.get_active())
@@ -294,7 +294,7 @@ class PrefsCallbacks(object):
         self.client.set_int(KEY('/general/window_valignment'), 1 if v else 0)
 
     def on_display_n_changed(self, combo):
-        """Set the destination display in gconf.
+        """Set the destination display in GConf.
         """
 
         i = combo.get_active_iter()
@@ -312,21 +312,21 @@ class PrefsCallbacks(object):
         self.client.set_int(KEY('/general/display_n'), val_int)
 
     def on_window_height_value_changed(self, hscale):
-        """Changes the value of window_height in gconf
+        """Changes the value of window_height in GConf
         """
         val = hscale.get_value()
         self.client.set_int(KEY('/general/window_height'), int(val))
         self.client.set_float(KEY('/general/window_height_f'), float(val))
 
     def on_window_width_value_changed(self, wscale):
-        """Changes the value of window_width in gconf
+        """Changes the value of window_width in GConf
         """
         val = wscale.get_value()
         self.client.set_int(KEY('/general/window_width'), int(val))
         self.client.set_float(KEY('/general/window_width_f'), float(val))
 
     def on_window_halign_value_changed(self, halign_button):
-        """Changes the value of window_halignment in gconf
+        """Changes the value of window_halignment in GConf
         """
         if halign_button.get_active():
             which_align = {
@@ -338,87 +338,87 @@ class PrefsCallbacks(object):
                                 which_align[halign_button.get_name()])
 
     def on_use_visible_bell_toggled(self, chk):
-        """Changes the value of use_visible_bell in gconf
+        """Changes the value of use_visible_bell in GConf
         """
         self.client.set_bool(KEY('/general/use_visible_bell'), chk.get_active())
 
     def on_use_audible_bell_toggled(self, chk):
-        """Changes the value of use_audible_bell in gconf
+        """Changes the value of use_audible_bell in GConf
         """
         self.client.set_bool(KEY('/general/use_audible_bell'), chk.get_active())
 
     # scrolling tab
 
     def on_use_scrollbar_toggled(self, chk):
-        """Changes the activity of use_scrollbar in gconf
+        """Changes the activity of use_scrollbar in GConf
         """
         self.client.set_bool(KEY('/general/use_scrollbar'), chk.get_active())
 
     def on_history_size_value_changed(self, spin):
-        """Changes the value of history_size in gconf
+        """Changes the value of history_size in GConf
         """
         val = int(spin.get_value())
         self.client.set_int(KEY('/general/history_size'), val)
 
     def on_scroll_output_toggled(self, chk):
-        """Changes the activity of scroll_output in gconf
+        """Changes the activity of scroll_output in GConf
         """
         self.client.set_bool(KEY('/general/scroll_output'), chk.get_active())
 
     def on_scroll_keystroke_toggled(self, chk):
-        """Changes the activity of scroll_keystroke in gconf
+        """Changes the activity of scroll_keystroke in GConf
         """
         self.client.set_bool(KEY('/general/scroll_keystroke'), chk.get_active())
 
     # appearance tab
 
     def on_use_default_font_toggled(self, chk):
-        """Changes the activity of use_default_font in gconf
+        """Changes the activity of use_default_font in GConf
         """
         self.client.set_bool(KEY('/general/use_default_font'), chk.get_active())
 
     def on_show_resizer_toggled(self, chk):
-        """Changes the activity of show_resizer in gconf
+        """Changes the activity of show_resizer in GConf
         """
         self.client.set_bool(KEY('/general/show_resizer'), chk.get_active())
 
     def on_allow_bold_toggled(self, chk):
-        """Changes the value of allow_bold in gconf
+        """Changes the value of allow_bold in GConf
         """
         self.client.set_bool(KEY('/style/font/allow_bold'), chk.get_active())
 
     def on_use_palette_font_and_background_color_toggled(self, chk):
-        """Changes the activity of use_palette_font_and_background_color in gconf
+        """Changes the activity of use_palette_font_and_background_color in GConf
         """
         self.client.set_bool(
             KEY('/general/use_palette_font_and_background_color'), chk.get_active())
 
     def on_font_style_font_set(self, fbtn):
-        """Changes the value of font_style in gconf
+        """Changes the value of font_style in GConf
         """
         self.client.set_string(KEY('/style/font/style'), fbtn.get_font_name())
 
     def on_font_color_color_set(self, btn):
-        """Changes the value of font_color in gconf
+        """Changes the value of font_color in GConf
         """
         color = hexify_color(btn.get_color())
         self.client.set_string(KEY('/style/font/color'), color)
 
     def on_background_color_color_set(self, btn):
-        """Changes the value of background_color in gconf
+        """Changes the value of background_color in GConf
         """
         color = hexify_color(btn.get_color())
         self.client.set_string(KEY('/style/background/color'), color)
 
     def on_background_image_changed(self, btn):
-        """Changes the value of background_image in gconf
+        """Changes the value of background_image in GConf
         """
         filename = btn.get_filename()
         if os.path.isfile(filename or ''):
             self.client.set_string(KEY('/style/background/image'), filename)
 
     def on_transparency_value_changed(self, hscale):
-        """Changes the value of background_transparency in gconf
+        """Changes the value of background_transparency in GConf
         """
         value = hscale.get_value()
         self.client.set_int(KEY('/style/background/transparency'), int(value))
@@ -426,14 +426,14 @@ class PrefsCallbacks(object):
     # compatibility tab
 
     def on_backspace_binding_changed(self, combo):
-        """Changes the value of compat_backspace in gconf
+        """Changes the value of compat_backspace in GConf
         """
         val = combo.get_active_text()
         self.client.set_string(KEY('/general/compat_backspace'),
                                ERASE_BINDINGS[val])
 
     def on_delete_binding_changed(self, combo):
-        """Changes the value of compat_delete in gconf
+        """Changes the value of compat_delete in GConf
         """
         val = combo.get_active_text()
         self.client.set_string(KEY('/general/compat_delete'),
@@ -456,14 +456,14 @@ class PrefsDialog(SimpleGladeApp):
                                           root='config-window')
         self.add_callbacks(PrefsCallbacks(self))
 
-        self.client = gconf.client_get_default()
+        self.client = GConf.client_get_default()
 
         # window cleanup handler
         self.get_widget('config-window').connect('destroy', self.on_destroy)
 
         # setting evtbox title bg
         eventbox = self.get_widget('eventbox-title')
-        eventbox.modify_bg(gtk.STATE_NORMAL,
+        eventbox.modify_bg(Gtk.STATE_NORMAL,
                            eventbox.get_colormap().alloc_color("#ffffff"))
 
         # images
@@ -472,31 +472,31 @@ class PrefsDialog(SimpleGladeApp):
         ipath = pixmapfile('quick-open.png')
         self.get_widget('image_quick_open').set_from_file(ipath)
 
-        # the first position in tree will store the keybinding path in gconf,
+        # the first position in tree will store the keybinding path in GConf,
         # and the user doesn't worry with this, let's hide that =D
-        model = gtk.TreeStore(str, str, object, bool)
+        model = Gtk.TreeStore(str, str, object, bool)
         treeview = self.get_widget('treeview-keys')
         treeview.set_model(model)
         treeview.set_rules_hint(True)
         treeview.connect('button-press-event', self.start_editing)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn('keypath', renderer, text=0)
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn('keypath', renderer, text=0)
         column.set_visible(False)
         treeview.append_column(column)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_('Action'), renderer, text=1)
+        renderer = Gtk.CellRendererText()
+        column = Gtk.TreeViewColumn(_('Action'), renderer, text=1)
         column.set_property('expand', True)
         treeview.append_column(column)
 
-        renderer = gtk.CellRendererAccel()
+        renderer = Gtk.CellRendererAccel()
         renderer.set_property('editable', True)
 
         renderer.connect('accel-edited', self.on_key_edited, model)
         renderer.connect('accel-cleared', self.on_key_cleared, model)
 
-        column = gtk.TreeViewColumn(_('Shortcut'), renderer)
+        column = Gtk.TreeViewColumn(_('Shortcut'), renderer)
         column.set_cell_data_func(renderer, self.cell_data_func)
         column.set_property('expand', False)
         treeview.append_column(column)
@@ -516,8 +516,8 @@ class PrefsDialog(SimpleGladeApp):
         self.get_widget('config-window').hide()
 
         # Preview when selecting a bgimage
-        self.selection_preview = gtk.Image()
-        self.file_filter = gtk.FileFilter()
+        self.selection_preview = Gtk.Image()
+        self.file_filter = Gtk.FileFilter()
         self.file_filter.add_pattern("*.jpg")
         self.file_filter.add_pattern("*.png")
         self.file_filter.add_pattern("*.svg")
@@ -550,11 +550,11 @@ class PrefsDialog(SimpleGladeApp):
         filename = file_chooser.get_preview_filename()
         if filename and os.path.isfile(filename or ''):
             try:
-                mkpb = gtk.gdk.pixbuf_new_from_file_at_size
+                mkpb = Gtk.gdk.pixbuf_new_from_file_at_size
                 pixbuf = mkpb(filename, 256, 256)
                 preview.set_from_pixbuf(pixbuf)
                 file_chooser.set_preview_widget_active(True)
-            except gobject.GError:
+            except GObject.GError:
                 # this exception is raised when user chooses a
                 # non-image file or a directory
                 warnings.warn('File %s is not an image' % filename)
@@ -607,14 +607,14 @@ class PrefsDialog(SimpleGladeApp):
         self.get_widget('abbreviate_tab_names').set_sensitive(do_use_vte_titles)
 
     def clear_background_image(self, btn):
-        """Unset the gconf variable that holds the name of the
+        """Unset the GConf variable that holds the name of the
         background image of all terminals.
         """
         self.client.unset(KEY('/style/background/image'))
         self.bgfilechooser.unselect_all()
 
     def on_reset_compat_defaults_clicked(self, bnt):
-        """Reset default values to compat_{backspace,delete} gconf
+        """Reset default values to compat_{backspace,delete} GConf
         keys. The default values are retrivied from the guake.schemas
         file.
         """
@@ -623,7 +623,7 @@ class PrefsDialog(SimpleGladeApp):
         self.reload_erase_combos()
 
     def on_palette_name_changed(self, combo):
-        """Changes the value of palette in gconf
+        """Changes the value of palette in GConf
         """
         palette_name = combo.get_active_text()
         if palette_name not in PALETTES:
@@ -635,18 +635,18 @@ class PrefsDialog(SimpleGladeApp):
         self.update_demo_palette(PALETTES[palette_name])
 
     def on_cursor_shape_changed(self, combo):
-        """Changes the value of cursor_shape in gconf
+        """Changes the value of cursor_shape in GConf
         """
         index = combo.get_active()
         self.client.set_int(KEY('/style/cursor_shape'), index)
 
     def on_blink_cursor_toggled(self, chk):
-        """Changes the value of blink_cursor in gconf
+        """Changes the value of blink_cursor in GConf
         """
         self.client.set_int(KEY('/style/cursor_blink_mode'), chk.get_active())
 
     def on_palette_color_set(self, btn):
-        """Changes the value of palette in gconf
+        """Changes the value of palette in GConf
         """
         palette = []
         for i in range(18):
@@ -674,11 +674,11 @@ class PrefsDialog(SimpleGladeApp):
             combo.set_active(self.custom_palette_index)
 
     def update_demo_palette(self, palette):
-        fgcolor = gtk.gdk.color_parse(
+        fgcolor = Gtk.gdk.color_parse(
             self.client.get_string(KEY('/style/font/color')))
-        bgcolor = gtk.gdk.color_parse(
+        bgcolor = Gtk.gdk.color_parse(
             self.client.get_string(KEY('/style/background/color')))
-        palette = [gtk.gdk.color_parse(color) for color in palette.split(':')]
+        palette = [Gtk.gdk.color_parse(color) for color in palette.split(':')]
         font_name = self.client.get_string(KEY('/style/font/style'))
         font = FontDescription(font_name)
 
@@ -713,11 +713,11 @@ class PrefsDialog(SimpleGladeApp):
         """
         palette = palette.split(':')
         for i, pal in enumerate(palette):
-            color = gtk.gdk.color_parse(pal)
+            color = Gtk.gdk.color_parse(pal)
             self.get_widget('palette_%d' % i).set_color(color)
 
     def reload_erase_combos(self, btn=None):
-        """Read from gconf the value of compat_{backspace,delete} vars
+        """Read from GConf the value of compat_{backspace,delete} vars
         and select the right option in combos.
         """
         # backspace erase binding
@@ -781,7 +781,7 @@ class PrefsDialog(SimpleGladeApp):
 
     def load_configs(self):
         """Load configurations for all widgets in General, Scrolling
-        and Appearance tabs from gconf.
+        and Appearance tabs from GConf.
         """
         self._load_default_shell_settings()
 
@@ -876,7 +876,7 @@ class PrefsDialog(SimpleGladeApp):
         self.get_widget('quick_open_enable').set_active(value)
         self.get_widget('quick_open_command_line').set_sensitive(value)
         self.get_widget('quick_open_in_current_terminal').set_sensitive(value)
-        text = gtk.TextBuffer()
+        text = Gtk.TextBuffer()
         text = self.get_widget('quick_open_supported_patterns').get_buffer()
         for title, matcher, _useless in QUICK_OPEN_MATCHERS:
             text.insert_at_cursor("%s: %s\n" % (title, matcher))
@@ -936,7 +936,7 @@ class PrefsDialog(SimpleGladeApp):
         # font color
         val = self.client.get_string(KEY('/style/font/color'))
         try:
-            color = gtk.gdk.color_parse(val)
+            color = Gtk.gdk.color_parse(val)
             self.get_widget('font_color').set_color(color)
         except (ValueError, TypeError):
             warnings.warn('Unable to parse color %s' % val, Warning)
@@ -944,7 +944,7 @@ class PrefsDialog(SimpleGladeApp):
         # background color
         value = self.client.get_string(KEY('/style/background/color'))
         try:
-            color = gtk.gdk.color_parse(value)
+            color = Gtk.gdk.color_parse(value)
             self.get_widget('background_color').set_color(color)
         except (ValueError, TypeError):
             warnings.warn('Unable to parse color %s' % val, Warning)
@@ -989,11 +989,11 @@ class PrefsDialog(SimpleGladeApp):
             custom_command_file_name = os.path.expanduser(custom_command_file)
         else:
             custom_command_file_name = None
-        custom_cmd_filter = gtk.FileFilter()
+        custom_cmd_filter = Gtk.FileFilter()
         custom_cmd_filter.set_name(_("JSON files"))
         custom_cmd_filter.add_pattern("*.json")
         self.get_widget('custom_command_file_chooser').add_filter(custom_cmd_filter)
-        all_files_filter = gtk.FileFilter()
+        all_files_filter = Gtk.FileFilter()
         all_files_filter.set_name(_("All files"))
         all_files_filter.add_pattern("*")
         self.get_widget('custom_command_file_chooser').add_filter(all_files_filter)
@@ -1035,7 +1035,7 @@ class PrefsDialog(SimpleGladeApp):
                 child = model.append(giter)
                 accel = self.client.get_string(item['key'])
                 if accel:
-                    params = gtk.accelerator_parse(accel)
+                    params = Gtk.accelerator_parse(accel)
                     hotkey = KeyEntry(*params)
                 else:
                     hotkey = KeyEntry(0, 0)
@@ -1069,15 +1069,15 @@ class PrefsDialog(SimpleGladeApp):
         some tests to validate the key, like looking for already in
         use keys and look for [A-Z][a-z][0-9] to avoid problems with
         these common keys. If all tests are ok, the value will be
-        stored in gconf.
+        stored in GConf.
         """
         giter = model.get_iter(path)
         gconf_path = model.get_value(giter, 0)
 
         oldkey = model.get_value(giter, 2)
         hotkey = KeyEntry(keycode, mask)
-        key = gtk.accelerator_name(keycode, mask)
-        keylabel = gtk.accelerator_get_label(keycode, mask)
+        key = Gtk.accelerator_name(keycode, mask)
+        keylabel = Gtk.accelerator_get_label(keycode, mask)
 
         # we needn't to change anything, the user is trying to set the
         # same key that is already set.
@@ -1097,10 +1097,10 @@ class PrefsDialog(SimpleGladeApp):
             (keycode >= ord('a') and keycode <= ord('z')) or
             (keycode >= ord('A') and keycode <= ord('Z')) or
                 (keycode >= ord('0') and keycode <= ord('9')))):
-            dialog = gtk.MessageDialog(
+            dialog = Gtk.MessageDialog(
                 self.get_widget('config-window'),
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                Gtk.DIALOG_MODAL | Gtk.DIALOG_DESTROY_WITH_PARENT,
+                Gtk.MESSAGE_WARNING, Gtk.BUTTONS_OK,
                 _("The shortcut \"%s\" cannot be used "
                   "because it will become impossible to "
                   "type using this key.\n\n"
@@ -1115,13 +1115,13 @@ class PrefsDialog(SimpleGladeApp):
         giter = model.get_iter(path)
         model.set_value(giter, 2, hotkey)
 
-        # setting the new value in gconf
+        # setting the new value in GConf
         self.client.set_string(gconf_path, key)
 
     def on_key_cleared(self, renderer, path, model):
         """If the user tries to clear a keybinding with the backspace
         key this callback will be called and it just fill the model
-        with an empty key and set the 'disabled' string in gconf path.
+        with an empty key and set the 'disabled' string in GConf path.
         """
         giter = model.get_iter(path)
         gconf_path = model.get_value(giter, 0)
@@ -1167,7 +1167,7 @@ class PrefsDialog(SimpleGladeApp):
                 treeview.grab_focus()
                 treeview.set_cursor(path, column, True)
             treeview.stop_emission('button-press-event')
-            gobject.idle_add(real_cb)
+            GObject.idle_add(real_cb)
 
         return True
 
@@ -1192,17 +1192,17 @@ def setup_standalone_signals(instance):
     the application.
     """
     window = instance.get_widget('config-window')
-    window.connect('delete-event', gtk.main_quit)
+    window.connect('delete-event', Gtk.main_quit)
 
     # We need to block the execution of the already associated
     # callback before connecting the new handler.
     button = instance.get_widget('button1')
     button.handler_block_by_func(instance.gtk_widget_destroy)
-    button.connect('clicked', gtk.main_quit)
+    button.connect('clicked', Gtk.main_quit)
 
     return instance
 
 if __name__ == '__main__':
     bindtextdomain(NAME, LOCALE_DIR)
     setup_standalone_signals(PrefsDialog()).show()
-    gtk.main()
+    Gtk.main()

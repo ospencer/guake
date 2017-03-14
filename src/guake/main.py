@@ -25,7 +25,9 @@ from __future__ import division
 from __future__ import print_function
 
 import dbus
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 import logging
 import os
 import subprocess
@@ -247,7 +249,7 @@ def exec_main():
                               'Have you installed <b>guake.schemas</b> properly?'))
 
     if not main():
-        gtk.main()
+        Gtk.main()
 
 if __name__ == '__main__':
     exec_main()

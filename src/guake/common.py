@@ -22,9 +22,13 @@ from __future__ import absolute_import
 import os
 import sys
 
-import gconf
+import gi
+
+gi.require_version('GConf', '2.0')
+
+from gi.repository import GConf
+from gi.repository import Gtk
 import gettext
-import gtk
 import guake.globals
 
 # Internationalization purposes.
@@ -38,8 +42,8 @@ __all__ = ['_', 'ShowableError', 'test_gconf',
 class ShowableError(Exception):
 
     def __init__(self, title, msg, exit_code=1):
-        d = gtk.MessageDialog(type=gtk.MESSAGE_ERROR,
-                              buttons=gtk.BUTTONS_CLOSE)
+        d = Gtk.MessageDialog(type=Gtk.MESSAGE_ERROR,
+                              buttons=Gtk.BUTTONS_CLOSE)
         d.set_markup('<b><big>%s</big></b>' % title)
         d.format_secondary_markup(msg)
         d.run()
@@ -49,7 +53,7 @@ class ShowableError(Exception):
 
 
 def test_gconf():
-    c = gconf.client_get_default()
+    c = GConf.Client.get_default()
     return c.dir_exists('/apps/guake')
 
 

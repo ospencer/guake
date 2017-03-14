@@ -5,7 +5,7 @@ from __future__ import print_function
 import logging
 import posix
 
-from gtk import Notebook
+from gi.repository.Gtk import Notebook
 
 
 log = logging.getLogger(__name__)

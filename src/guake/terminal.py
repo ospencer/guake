@@ -22,16 +22,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import gconf
-import gtk
+from gi.repository import GConf
+from gi.repository import Gtk
 import logging
 import os
-import pango
+from gi.repository import Pango
 import re
 import signal
 import subprocess
 import uuid
-import vte
+from gi.repository import Vte
 
 
 from guake.common import clamp
@@ -76,9 +76,9 @@ QUICK_OPEN_MATCHERS = [
 ]
 
 
-class GuakeTerminal(vte.Terminal):
+class GuakeTerminal(Vte.Terminal):
 
-    """Just a vte.Terminal with some properties already set.
+    """Just a Vte.Terminal with some properties already set.
     """
 
     def __init__(self):
@@ -103,15 +103,15 @@ class GuakeTerminal(vte.Terminal):
     def configure_terminal(self):
         """Sets all customized properties on the terminal
         """
-        client = gconf.client_get_default()
+        client = GConf.client_get_default()
         word_chars = client.get_string(KEY('/general/word_chars'))
         if word_chars:
             self.set_word_chars(word_chars)
         self.set_audible_bell(client.get_bool(KEY('/general/use_audible_bell')))
         self.set_visible_bell(client.get_bool(KEY('/general/use_visible_bell')))
         self.set_sensitive(True)
-        self.set_flags(gtk.CAN_DEFAULT)
-        self.set_flags(gtk.CAN_FOCUS)
+        self.set_flags(Gtk.CAN_DEFAULT)
+        self.set_flags(Gtk.CAN_FOCUS)
         cursor_blink_mode = client.get_int(KEY('/style/cursor_blink_mode'))
         client.set_int(KEY('/style/cursor_blink_mode'), cursor_blink_mode)
         cursor_shape = client.get_int(KEY('/style/cursor_shape'))
@@ -119,16 +119,16 @@ class GuakeTerminal(vte.Terminal):
 
     def add_matches(self):
         """Adds all regular expressions declared in
-        guake.globals.TERMINAL_MATCH_EXPRS to the terminal to make vte
+        guake.globals.TERMINAL_MATCH_EXPRS to the terminal to make Vte
         highlight text that matches them.
         """
         for expr in TERMINAL_MATCH_EXPRS:
             tag = self.match_add(expr)
-            self.match_set_cursor_type(tag, gtk.gdk.HAND2)
+            self.match_set_cursor_type(tag, Gtk.gdk.HAND2)
 
         for _useless, match, _otheruseless in QUICK_OPEN_MATCHERS:
             tag = self.match_add(match)
-            self.match_set_cursor_type(tag, gtk.gdk.HAND2)
+            self.match_set_cursor_type(tag, Gtk.gdk.HAND2)
 
     def get_current_directory(self):
         directory = os.path.expanduser('~')
@@ -149,12 +149,12 @@ class GuakeTerminal(vte.Terminal):
             int(event.y / self.get_char_height()))
 
         self.found_link = None
-        if (event.button == 1 and (event.get_state() & gtk.gdk.CONTROL_MASK) and matched_string):
+        if (event.button == 1 and (event.get_state() & Gtk.gdk.CONTROL_MASK) and matched_string):
             log.debug("matched string: %s", matched_string)
             value, tag = matched_string
             # First searching in additional matchers
             found_additional_matcher = False
-            client = gconf.client_get_default()
+            client = GConf.client_get_default()
             use_quick_open = client.get_bool(KEY("/general/quick_open_enable"))
             quick_open_in_current_terminal = client.get_bool(
                 KEY("/general/quick_open_in_current_terminal"))
@@ -250,7 +250,7 @@ class GuakeTerminal(vte.Terminal):
     def set_font_scale_index(self, scale_index):
         self.font_scale_index = clamp(scale_index, -6, 12)
 
-        font = pango.FontDescription(self.font.to_string())
+        font = Pango.FontDescription(self.font.to_string())
         scale_factor = 2 ** (self.font_scale_index / 6)
         new_size = int(scale_factor * font.get_size())
 
@@ -311,7 +311,7 @@ class GuakeTerminal(vte.Terminal):
                 pass
 
 
-class GuakeTerminalBox(gtk.HBox):
+class GuakeTerminalBox(Gtk.HBox):
 
     """A box to group the terminal and a scrollbar.
     """
@@ -332,6 +332,6 @@ class GuakeTerminalBox(gtk.HBox):
         """Packs the scrollbar.
         """
         adj = self.terminal.get_adjustment()
-        scroll = gtk.VScrollbar(adj)
+        scroll = Gtk.VScrollbar(adj)
         scroll.set_no_show_all(True)
         self.pack_start(scroll, False, False)

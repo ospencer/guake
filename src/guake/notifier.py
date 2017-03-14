@@ -23,12 +23,12 @@ from __future__ import print_function
 import glib
 import logging
 
-import pynotify
+from gi.repository import Notify
 
 from textwrap import dedent
 
 log = logging.getLogger(__name__)
-pynotify.init("Guake")
+Notify.init("Guake")
 
 __all__ = ['show_message']
 
@@ -39,7 +39,7 @@ retry_limit = 5  # tries
 
 def show_message(brief, body=None, icon=None):
     try:
-        notification = pynotify.Notification(brief, body, icon)
+        notification = Notify.Notification(brief, body, icon)
         notification.show()
     except glib.GError:
         print_warning()

@@ -1,4 +1,4 @@
-import gconf
+from gi.repository import GConf
 import mock
 import pytest
 
@@ -8,7 +8,7 @@ from guake.guake_app import Guake
 @pytest.fixture
 def app():
     ap = mock.Mock(Guake)
-    ap.client = mock.Mock(gconf.Client)
+    ap.client = mock.Mock(GConf.Client)
     ap.notebook = mock.Mock()
     ap.window = mock.Mock()
     ap.selected_color = mock.Mock()
